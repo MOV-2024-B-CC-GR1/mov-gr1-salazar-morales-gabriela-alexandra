@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "350941216868",
+    "project_id": "cc-2024b-mov-gr1-gasm",
+    "storage_bucket": "cc-2024b-mov-gr1-gasm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350941216868:android:f3f925f6b5043434f29f71",
+        "android_client_info": {
+          "package_name": "com.example.ccgr12024b_gasm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD10WiLTVKg7glkyhDoyykzH2Gi9nGPUgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

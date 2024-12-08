@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_conditionPE">PORT EN</string>
+    <color name="background_colorPE">#2FB1C1</color>
+    <color name="text_colorPE">#015F68</color>
+</resources>

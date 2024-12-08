@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="text_conditionPS">Hello World</string>
+
+    <color name="background_colorPS">#F6EFF4</color>
+    <color name="text_colorPS">#BC8BBC</color>
+</resources>
