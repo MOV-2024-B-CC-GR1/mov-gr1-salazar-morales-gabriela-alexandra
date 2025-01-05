@@ -5,6 +5,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.snackbar.Snackbar
 
 class ACicloVida : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,28 +20,28 @@ class ACicloVida : AppCompatActivity() {
         mostrarSnackbar("OnCreate")
     }
 
-    override fun OnStart(){
-        super.OnStart()
+    override fun onStart(){
+        super.onStart()
         mostrarSnackbar("OnStart")
     }
 
-    override fun OnResume(){
-        super.OnResume()
+    override fun onResume(){
+        super.onResume()
         mostrarSnackbar("OnResume")
     }
 
-    override fun OnRestart(){
-        super.OnRestart()
+    override fun onRestart(){
+        super.onRestart()
         mostrarSnackbar("OnRestart")
     }
 
-    override fun OnPause(){
-        super.OnPause()
+    override fun onPause(){
+        super.onPause()
         mostrarSnackbar("OnPause")
     }
 
-    override fun OnStop(){
-        super.OnStop()
+    override fun onStop(){
+        super.onStop()
         mostrarSnackbar("OnStop")
     }
 
@@ -65,10 +66,10 @@ class ACicloVida : AppCompatActivity() {
 
     var textoGlobal = ""
     fun mostrarSnackbar (text:String){
-        textoGlobal += textval
+        textoGlobal += text
         val snack = Snackbar.make(
-            fiindViewById(R.id.cl_ciclo_vida),
-            textGlobal,
+            findViewById(R.id.cl_ciclo_vida),
+            textoGlobal,
             Snackbar.LENGTH_INDEFINITE
         )
         snack.show()
