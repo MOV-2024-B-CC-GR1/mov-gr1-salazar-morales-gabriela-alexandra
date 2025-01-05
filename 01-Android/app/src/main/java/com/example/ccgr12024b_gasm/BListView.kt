@@ -53,12 +53,10 @@ class BListView : AppCompatActivity() {
             "Aceptar",
             DialogInterface.OnClickListener{ dialog, which ->
                 mostrarSnackbar("Eliminar aceptado")
-            }
-        )
+            })
         builder.setNegativeButton(
             "Cancelar",
-            null
-        )
+            null)
         val opciones = resources.getStringArray(
             R.array.string_array_opciones_dialogo
         )
@@ -79,6 +77,7 @@ class BListView : AppCompatActivity() {
         val dialogo = builder.create()
         dialogo.show()
     }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
