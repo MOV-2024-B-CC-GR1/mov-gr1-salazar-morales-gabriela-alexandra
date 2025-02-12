@@ -25,6 +25,9 @@ class ClienteFormActivity : AppCompatActivity() {
     private lateinit var swActivo: SwitchMaterial
     private lateinit var btnGuardarCliente: Button
 
+    private lateinit var etLatitud: TextInputEditText
+    private lateinit var etLongitud: TextInputEditText
+
     private var clienteId: Int = 0
     private var isEditing = false // Indica si estamos editando un cliente existente
 
@@ -42,6 +45,8 @@ class ClienteFormActivity : AppCompatActivity() {
         etEmail = findViewById(R.id.etEmail)
         etTelefono = findViewById(R.id.etTelefono)
         swActivo = findViewById(R.id.swActivo)
+        etLatitud = findViewById(R.id.etLatitud)
+        etLongitud = findViewById(R.id.etLongitud)
         btnGuardarCliente = findViewById(R.id.btnGuardarCliente)
 
         // Obtener el clienteId del Intent, si se está editando un cliente
@@ -131,6 +136,7 @@ class ClienteFormActivity : AppCompatActivity() {
     /**
      * Agrega un nuevo cliente a la base de datos.
      */
+    /*
     private fun agregarCliente() {
         val cliente = obtenerDatosCliente()
         dbHelper.insertarCliente(cliente.nombre, cliente.email, cliente.telefono, cliente.activo,
@@ -138,13 +144,43 @@ class ClienteFormActivity : AppCompatActivity() {
         showToast("Cliente agregado")
         finish()
     }
+     */
+    private fun agregarCliente() {
+        val cliente = obtenerDatosCliente()
+        dbHelper.insertarCliente(
+            cliente.nombre,
+            cliente.email,
+            cliente.telefono,
+            cliente.activo,
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            cliente.latitud,
+            cliente.longitud
+        )
+        showToast("Cliente agregado")
+        finish()
+    }
 
     /**
      * Actualiza los datos de un cliente existente en la base de datos.
      */
+    /*
     private fun actualizarCliente() {
         val cliente = obtenerDatosCliente()
         dbHelper.actualizarCliente(clienteId, cliente.nombre, cliente.email, cliente.telefono, cliente.activo)
+        showToast("Cliente actualizado")
+        finish()
+    }*/
+    private fun actualizarCliente() {
+        val cliente = obtenerDatosCliente()
+        dbHelper.actualizarCliente(
+            clienteId,
+            cliente.nombre,
+            cliente.email,
+            cliente.telefono,
+            cliente.activo,
+            cliente.latitud,
+            cliente.longitud
+        )
         showToast("Cliente actualizado")
         finish()
     }
@@ -153,16 +189,27 @@ class ClienteFormActivity : AppCompatActivity() {
      * Obtiene los datos del cliente ingresados en el formulario.
      * @return Objeto ClienteData con los datos ingresados.
      */
+    /*
     private fun obtenerDatosCliente() = ClienteData(
         nombre = etNombre.text.toString(),
         email = etEmail.text.toString(),
         telefono = etTelefono.text.toString(),
         activo = swActivo.isChecked
+    )*/
+
+    private fun obtenerDatosCliente() = ClienteData(
+        nombre = etNombre.text.toString(),
+        email = etEmail.text.toString(),
+        telefono = etTelefono.text.toString(),
+        activo = swActivo.isChecked,
+        latitud = etLatitud.text.toString().toDoubleOrNull(),
+        longitud = etLongitud.text.toString().toDoubleOrNull()
     )
 
     /**
      * Carga los datos de un cliente existente en el formulario para edición.
      */
+    /*
     private fun cargarCliente() {
         val cursor = dbHelper.obtenerClientes()
         if (cursor.moveToFirst()) {
@@ -172,6 +219,33 @@ class ClienteFormActivity : AppCompatActivity() {
                     etEmail.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_EMAIL)))
                     etTelefono.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_TELEFONO)))
                     swActivo.isChecked = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_ACTIVO)) == 1
+                    break
+                }
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+    }*/
+    private fun cargarCliente() {
+        val cursor = dbHelper.obtenerClientes()
+        if (cursor.moveToFirst()) {
+            do {
+                if (cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_ID)) == clienteId) {
+                    etNombre.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_NOMBRE)))
+                    etEmail.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_EMAIL)))
+                    etTelefono.setText(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_TELEFONO)))
+                    swActivo.isChecked = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_ACTIVO)) == 1
+
+                    // Cargar latitud y longitud
+                    val latitud = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LATITUD))
+                    val longitud = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LONGITUD))
+
+                    if (!cursor.isNull(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LATITUD))) {
+                        etLatitud.setText(latitud.toString())
+                    }
+                    if (!cursor.isNull(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LONGITUD))) {
+                        etLongitud.setText(longitud.toString())
+                    }
+
                     break
                 }
             } while (cursor.moveToNext())
@@ -194,7 +268,9 @@ class ClienteFormActivity : AppCompatActivity() {
         val nombre: String,
         val email: String,
         val telefono: String,
-        val activo: Boolean
+        val activo: Boolean,
+        val latitud: Double? = null,
+        val longitud: Double? = null
     )
 }
 

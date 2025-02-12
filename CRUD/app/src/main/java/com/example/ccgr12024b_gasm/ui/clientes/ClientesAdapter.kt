@@ -1,5 +1,6 @@
 package com.example.ccgr12024b_gasm.ui.clientes
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ccgr12024b_gasm.R
 import com.example.ccgr12024b_gasm.model.Cliente
+import android.widget.ImageButton
 
 /**
  * Adaptador para manejar la lista de clientes en un RecyclerView.
@@ -16,7 +18,8 @@ import com.example.ccgr12024b_gasm.model.Cliente
  */
 class ClientesAdapter(
     private val clientes: List<Cliente>,
-    private val onItemClick: (Cliente) -> Unit
+    private val onItemClick: (Cliente) -> Unit,
+    private val onMapClick: (Cliente) -> Unit  // Nuevo callback para el mapa
 ) : RecyclerView.Adapter<ClientesAdapter.ClienteViewHolder>() {
 
     /**
@@ -28,6 +31,8 @@ class ClientesAdapter(
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
         val tvEmail: TextView = view.findViewById(R.id.tvEmail)
         val tvTelefono: TextView = view.findViewById(R.id.tvTelefono)
+        val btnVerMapa: ImageButton = view.findViewById(R.id.btnVerMapa)
+
     }
 
     /**
@@ -51,10 +56,29 @@ class ClientesAdapter(
      */
     override fun onBindViewHolder(holder: ClienteViewHolder, position: Int) {
         val cliente = clientes[position]
+
+        // Agregar log para verificar los valores
+        Log.d("ClientesAdapter", "Cliente ${cliente.nombre} - Lat: ${cliente.latitud}, Long: ${cliente.longitud}")
+
+        // Configurar los datos del cliente
         holder.tvNombre.text = cliente.nombre
         holder.tvEmail.text = cliente.email
         holder.tvTelefono.text = cliente.telefono
-        holder.itemView.setOnClickListener { onItemClick(cliente) }
+
+        // Configurar el botón del mapa
+
+        holder.btnVerMapa.setOnClickListener {
+            if (cliente.latitud != null && cliente.longitud != null) {
+                onMapClick(cliente)
+            } else {
+                Log.e("ClientesAdapter", "Cliente ${cliente.nombre} sin ubicación")
+            }
+        }
+
+        // Mantener el click del item completo
+        holder.itemView.setOnClickListener {
+            onItemClick(cliente)
+        }
     }
 
     /**

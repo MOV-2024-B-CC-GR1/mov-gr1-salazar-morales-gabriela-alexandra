@@ -66,7 +66,7 @@ class GGoogleMaps : AppCompatActivity() {
 
     fun inicializarLogicaMapa() {
         val fragmentoMapa = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment // Actualizado aquí
+            .findFragmentById(R.id.map) as SupportMapFragment
         fragmentoMapa.getMapAsync { googleMap ->
             with(googleMap) {
                 mapa = googleMap
@@ -78,7 +78,6 @@ class GGoogleMaps : AppCompatActivity() {
             }
         }
     }
-
 
     fun moverQuicentro() {
         val quicentro = LatLng(-0.17584022368791677, -78.4802112850314)

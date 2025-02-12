@@ -49,11 +49,44 @@ class ClientesActivity : AppCompatActivity() {
      * Configura el RecyclerView para mostrar la lista de clientes y manejar eventos de clic.
      */
     private fun setupRecyclerView() {
-        adapter = ClientesAdapter(clientesList) { cliente ->
-            mostrarOpcionesCliente(cliente)
-        }
+        adapter = ClientesAdapter(
+            clientes = clientesList,
+            onItemClick = { cliente ->
+                mostrarOpcionesCliente(cliente)
+            },
+            onMapClick = { cliente ->
+                // Verificar si el cliente tiene coordenadas antes de abrir el mapa
+                if (cliente.latitud != null && cliente.longitud != null) {
+                    val intent = Intent(this, MapaClienteActivity::class.java).apply {
+                        putExtra("latitud", cliente.latitud)
+                        putExtra("longitud", cliente.longitud)
+                        putExtra("nombre", cliente.nombre)
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Este cliente no tiene ubicación registrada",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        )
         recyclerViewClientes.layoutManager = LinearLayoutManager(this)
         recyclerViewClientes.adapter = adapter
+    }
+
+    private fun abrirMapa(cliente: Cliente) {
+        if (cliente.latitud != null && cliente.longitud != null) {
+            val intent = Intent(this, MapaClienteActivity::class.java).apply {
+                putExtra("latitud", cliente.latitud)
+                putExtra("longitud", cliente.longitud)
+                putExtra("nombre", cliente.nombre)
+            }
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "El cliente no tiene ubicación registrada", Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -79,7 +112,15 @@ class ClientesActivity : AppCompatActivity() {
                     email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_EMAIL)),
                     telefono = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_TELEFONO)),
                     activo = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_ACTIVO)) == 1,
-                    fechaRegistro = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_FECHA_REGISTRO))
+                    fechaRegistro = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_FECHA_REGISTRO)),
+                    latitud = if (cursor.isNull(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LATITUD)))
+                        null
+                    else
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LATITUD)),
+                    longitud = if (cursor.isNull(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LONGITUD)))
+                        null
+                    else
+                        cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.CLIENTE_LONGITUD))
                 )
                 clientesList.add(cliente)
             } while (cursor.moveToNext())

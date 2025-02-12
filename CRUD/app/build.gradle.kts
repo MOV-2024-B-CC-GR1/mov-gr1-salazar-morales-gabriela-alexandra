@@ -51,6 +51,13 @@ android {
 
 dependencies {
 
+    // Dependencias de Google Maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
+    // Agregar la dependencia de OSMdroid
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation(libs.androidx.core.ktx)

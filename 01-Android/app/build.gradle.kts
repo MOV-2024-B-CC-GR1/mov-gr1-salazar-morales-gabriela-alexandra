@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.firebase.appdistribution)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
 }
 
 android {
@@ -42,13 +43,20 @@ android {
 }
 
 dependencies {
+    // Firebase Authentication
+    implementation("com.google.firebase:firebase-auth:22.2.0") // Última versión estable
 
+    // Firebase UI para autenticación (con soporte para Google, Email, etc.)
+    implementation("com.firebaseui:firebase-ui-auth:8.0.2")
+
+    implementation(libs.firebase.ui.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation(libs.androidx.junit)

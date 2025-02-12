@@ -14,7 +14,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "AppCRUD.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
         // Tablas
         const val TABLE_CLIENTE = "Cliente"
@@ -27,6 +27,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val CLIENTE_TELEFONO = "telefono"
         const val CLIENTE_ACTIVO = "activo"
         const val CLIENTE_FECHA_REGISTRO = "fechaRegistro"
+        const val CLIENTE_LATITUD = "latitud"
+        const val CLIENTE_LONGITUD = "longitud"
 
         // Campos de Pedido
         const val PEDIDO_ID = "id"
@@ -49,7 +51,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 $CLIENTE_EMAIL TEXT NOT NULL,
                 $CLIENTE_TELEFONO TEXT NOT NULL,
                 $CLIENTE_ACTIVO INTEGER NOT NULL,
-                $CLIENTE_FECHA_REGISTRO TEXT NOT NULL
+                $CLIENTE_FECHA_REGISTRO TEXT NOT NULL,
+                $CLIENTE_LATITUD REAL,
+                $CLIENTE_LONGITUD REAL
             );
         """
         db.execSQL(createClienteTable)
@@ -73,10 +77,26 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
      * Elimina las tablas existentes y las recrea.
      */
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_PEDIDO")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_CLIENTE")
-        onCreate(db)
+        // Si estamos actualizando desde la versión 1 a la 2 (agregando columnas de latitud y longitud)
+        if (oldVersion == 1 && newVersion == 2) {
+            try {
+                // Intentar agregar las nuevas columnas a la tabla existente
+                db.execSQL("ALTER TABLE $TABLE_CLIENTE ADD COLUMN $CLIENTE_LATITUD REAL;")
+                db.execSQL("ALTER TABLE $TABLE_CLIENTE ADD COLUMN $CLIENTE_LONGITUD REAL;")
+            } catch (e: Exception) {
+                // Si algo sale mal, eliminar las tablas y recrearlas
+                db.execSQL("DROP TABLE IF EXISTS $TABLE_PEDIDO")
+                db.execSQL("DROP TABLE IF EXISTS $TABLE_CLIENTE")
+                onCreate(db)
+            }
+        } else {
+            // Para otros casos, mantener el comportamiento original
+            db.execSQL("DROP TABLE IF EXISTS $TABLE_PEDIDO")
+            db.execSQL("DROP TABLE IF EXISTS $TABLE_CLIENTE")
+            onCreate(db)
+        }
     }
+
 
     // --- CRUD para la tabla Cliente ---
 
@@ -89,7 +109,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
      * @param fechaRegistro Fecha de registro del cliente.
      * @return ID del cliente recién insertado.
      */
-    fun insertarCliente(nombre: String, email: String, telefono: String, activo: Boolean, fechaRegistro: String): Long {
+    fun insertarCliente(nombre: String, email: String, telefono: String, activo: Boolean,
+                        fechaRegistro: String, latitud: Double?, longitud: Double?): Long {
         val db = writableDatabase
         val values = ContentValues().apply {
             put(CLIENTE_NOMBRE, nombre)
@@ -97,6 +118,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(CLIENTE_TELEFONO, telefono)
             put(CLIENTE_ACTIVO, if (activo) 1 else 0)
             put(CLIENTE_FECHA_REGISTRO, fechaRegistro)
+            put(CLIENTE_LATITUD, latitud)
+            put(CLIENTE_LONGITUD, longitud)
         }
         return db.insert(TABLE_CLIENTE, null, values)
     }
@@ -107,9 +130,25 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
      */
     fun obtenerClientes(): Cursor {
         val db = readableDatabase
-        return db.query(
+        val cursor = db.query(
             TABLE_CLIENTE, null, null, null, null, null, "$CLIENTE_NOMBRE ASC"
         )
+
+        // Log para verificar los datos
+        if (cursor.moveToFirst()) {
+            do {
+                val nombre = cursor.getString(cursor.getColumnIndexOrThrow(CLIENTE_NOMBRE))
+                val latIndex = cursor.getColumnIndexOrThrow(CLIENTE_LATITUD)
+                val longIndex = cursor.getColumnIndexOrThrow(CLIENTE_LONGITUD)
+                val lat = if (!cursor.isNull(latIndex)) cursor.getDouble(latIndex) else null
+                val long = if (!cursor.isNull(longIndex)) cursor.getDouble(longIndex) else null
+
+                android.util.Log.d("DatabaseHelper", "Cliente en DB: $nombre - Lat: $lat, Long: $long")
+            } while (cursor.moveToNext())
+            cursor.moveToFirst() // Regresamos el cursor al inicio
+        }
+
+        return cursor
     }
 
     /**
@@ -121,13 +160,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
      * @param activo Indica si el cliente está activo.
      * @return Número de filas afectadas.
      */
-    fun actualizarCliente(id: Int, nombre: String, email: String, telefono: String, activo: Boolean): Int {
+    fun actualizarCliente(id: Int, nombre: String, email: String, telefono: String,
+                          activo: Boolean, latitud: Double?, longitud: Double?): Int {
         val db = writableDatabase
         val values = ContentValues().apply {
             put(CLIENTE_NOMBRE, nombre)
             put(CLIENTE_EMAIL, email)
             put(CLIENTE_TELEFONO, telefono)
             put(CLIENTE_ACTIVO, if (activo) 1 else 0)
+            put(CLIENTE_LATITUD, latitud)
+            put(CLIENTE_LONGITUD, longitud)
         }
         return db.update(TABLE_CLIENTE, values, "$CLIENTE_ID = ?", arrayOf(id.toString()))
     }
